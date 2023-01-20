@@ -24,8 +24,25 @@ termux_setup_cabal() {
 		tar xf "${TERMUX_CABAL_TAR}" -C "${TERMUX_CABAL_RUNTIME_FOLDER}"
 		rm "${TERMUX_CABAL_TAR}"
 
+		export CABAL_CONFIG="$TERMUX_CABAL_RUNTIME_FOLDER/config"
+		# Configure cabal for Termux:
 		cabal update
-
+		local _ghc_host="$TERMUX_HOST_PLATFORM"
+		if [[ "$TERMUX_ARCH" == "arm" ]]; then _ghc_host="armv7a-linux-androideabi"; fi
+		cabal user-config update \
+			-a "tests: False" \
+			-a "extra-include-dirs: $TERMUX_PREFIX/include" \
+			-a "extra-lib-dirs: $TERMUX_PREFIX/lib" \
+			-a "configure-option: --host=$_ghc_host" \
+			-a "executable-static: True" \
+			-a "install-method: copy" \
+			-a "installdir: $TERMUX_PREFIX/bin"
+		# Workaround for https://github.com/haskell/cabal/issues/6823
+		sed -i \
+			-e "s|-- \(prefix:\).*|\1 $TERMUX_PREFIX|g" \
+			-e "s|-- \(hsc2hs-options:\)|\1 --cross-compile|" \
+			-e "s|-- \(ghc-options:\)|\1 -optl-Wl,--enable-new-dtags -optl-Wl,-rpath=$TERMUX_PREFIX/lib|" \
+			"$CABAL_CONFIG"
 	else
 		if [[ "${TERMUX_APP_PACKAGE_MANAGER}" == "apt" ]] && "$(dpkg-query -W -f '${db:Status-Status}\n' cabal-install 2>/dev/null)" != "installed" ||
 			[[ "${TERMUX_APP_PACKAGE_MANAGER}" == "pacman" ]] && ! "$(pacman -Q cabal-install 2>/dev/null)"; then

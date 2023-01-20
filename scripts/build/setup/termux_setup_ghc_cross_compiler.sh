@@ -17,7 +17,7 @@ termux_setup_ghc_cross_compiler() {
 		export PATH="${TERMUX_GHC_RUNTIME_FOLDER}/bin:${PATH}"
 
 		[[ -d "${TERMUX_GHC_RUNTIME_FOLDER}" ]] && {
-			__link_libs
+			# __link_libs
 			return
 		}
 
@@ -62,7 +62,7 @@ termux_setup_ghc_cross_compiler() {
 			done
 		)
 
-		__link_prefix
+		# __link_prefix
 
 	else
 		if [[ "${TERMUX_APP_PACKAGE_MANAGER}" == "apt" ]] && "$(dpkg-query -W -f '${db:Status-Status}\n' ghc 2>/dev/null)" != "installed" ||

@@ -6,13 +6,7 @@ termux_step_make_install() {
 	elif test -f setup.py || test -f pyproject.toml || test -f setup.cfg; then
 		pip install --no-deps . --prefix $TERMUX_PREFIX
 	elif ls ./*.cabal &>/dev/null; then
-		cabal install \
-			--extra-include-dirs="$TERMUX_PREFIX/include" \
-			--extra-lib-dirs="$TERMUX_PREFIX/include" \
-			--prefix="$TERMUX_PREFIX" \
-			--installdir="$TERMUX_PREFIX/bin" \
-			--install-method="copy" \
-			$TERMUX_PKG_EXTRA_CONFIGURE_ARGS
+		cabal install $TERMUX_PKG_EXTRA_CONFIGURE_ARGS
 	elif ls ./*akefile &>/dev/null || [ -n "$TERMUX_PKG_EXTRA_MAKE_ARGS" ]; then
 		: "${TERMUX_PKG_MAKE_INSTALL_TARGET:="install"}"
 		# Some packages have problem with parallell install, and it does not buy much, so use -j 1.
